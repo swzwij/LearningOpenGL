@@ -20,8 +20,12 @@ float lastX = 1000. / 2.0f;
 float lastY = 800. / 2.0f;
 bool firstMouse = true;
 
-float yaw = -90.0f; // yaw is initialized to -90.0 degrees, to rotate the camera to the right
-float pitch = 0.0f; // pitch is initialized to 0.0 degrees, to keep the camera level
+float yaw = -90.0f;
+float pitch = 0.0f;
+
+bool mouseLocked = false;
+
+Shader shaders;
 
 void FramebufferSizeCallBack(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window);
@@ -49,12 +53,13 @@ int main()
 		return -1;
 
 	glViewport(0, 0, WIDTH, HEIGHT);
+	
+	shaders = Shader("shaders/vertex.vert", "shaders/fragment.frag");
 
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallBack);
 	glfwSetCursorPosCallback(window, MouseCallback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-	Shader shaders("shaders/vertex.vert", "shaders/fragment.frag");
+	mouseLocked = true;
 
 	float vertices[] = 
 	{
@@ -158,7 +163,7 @@ int main()
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
-	data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
+	data = stbi_load("Icon.png", &width, &height, &nrChannels, 0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -265,6 +270,12 @@ int main()
 void FramebufferSizeCallBack(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+
+	glm::mat4 projection;
+	projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+
+	shaders.Use();
+	shaders.SetMat4("projection", projection);
 }
 
 void ProcessInput(GLFWwindow* window)
@@ -287,10 +298,29 @@ void ProcessInput(GLFWwindow* window)
 		cameraPos += cameraSpeed * cameraUp;
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		cameraPos -= cameraSpeed * cameraUp;
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+	{
+		mouseLocked = !mouseLocked;
+
+		if (!mouseLocked)
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			mouseLocked = false;
+		}
+		else
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			mouseLocked = true;
+			firstMouse = true;
+		}
+	}
 }
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
+	if (!mouseLocked)
+		return;
+
 	if (firstMouse)
 	{
 		lastX = xpos;

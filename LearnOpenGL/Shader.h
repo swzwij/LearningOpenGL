@@ -15,6 +15,11 @@ class Shader
 public:
     unsigned int program;
 
+    Shader()
+    {
+        program = 0;
+    }
+
     Shader(const char* vertexPath, const char* fragmentPath)
     {
         std::string vertexCode;
@@ -89,7 +94,7 @@ public:
         glDeleteShader(fragment);
     }
 
-    void Use()
+    void Use() const
 	{
 		glUseProgram(program);
 	}
