@@ -8,24 +8,17 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+#include "Camera.h"
 
 float deltaTime = 0.;
 float lastFrame = 0.;
 
-float lastX = 1000. / 2.0f;
-float lastY = 800. / 2.0f;
-bool firstMouse = true;
-
-float yaw = -90.0f;
-float pitch = 0.0f;
-
-bool mouseLocked = false;
-
 Shader shaders;
+
+glm::vec3 cameraPosition(0., 0., 3.);
+glm::vec3 cameraTarget(0.);
+
+Camera camera(&cameraPosition, &cameraTarget);
 
 void FramebufferSizeCallBack(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window);
@@ -59,7 +52,6 @@ int main()
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallBack);
 	glfwSetCursorPosCallback(window, MouseCallback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	mouseLocked = true;
 
 	float vertices[] = 
 	{
@@ -178,13 +170,6 @@ int main()
 	shaders.SetInt("texture1", 0);
 	shaders.SetInt("texture2", 1);
 
-	glm::vec3 cameraTarget = glm::uvec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-	cameraUp = glm::cross(cameraDirection, cameraRight);
-	cameraFront = glm::normalize(cameraTarget - cameraPos);
-
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
@@ -224,18 +209,12 @@ int main()
 		glClearColor(0.0f, 0.3f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//model = glm::mat4(1.0f);
-		//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-		//shaders.SetMat4("model", model);
-
 		shaders.Use();
 
 		const float radius = 10.0f;
 		float camX = sin(glfwGetTime()) * radius;
 		float camZ = cos(glfwGetTime()) * radius;
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
 		shaders.SetMat4("view", view);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -255,9 +234,6 @@ int main()
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
@@ -282,72 +258,11 @@ void ProcessInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
-
-	const float cameraSpeed = 2. * deltaTime;
-
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraSpeed * cameraFront;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos -= cameraSpeed * cameraFront;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		cameraPos += cameraSpeed * cameraUp;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		cameraPos -= cameraSpeed * cameraUp;
-	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-	{
-		mouseLocked = !mouseLocked;
-
-		if (!mouseLocked)
-		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			mouseLocked = false;
-		}
-		else
-		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			mouseLocked = true;
-			firstMouse = true;
-		}
-	}
+	
+	camera.Update(window, deltaTime);
 }
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (!mouseLocked)
-		return;
-
-	if (firstMouse)
-	{
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
-
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos;
-	lastX = xpos;
-	lastY = ypos;
-
-	float sensitivity = 0.1f;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-
-	yaw += xoffset;
-	pitch += yoffset;
-
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
-
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(direction);
+	camera.Look(window, xpos, ypos);
 }
