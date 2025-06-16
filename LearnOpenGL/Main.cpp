@@ -247,8 +247,6 @@ int main()
 	texturedShaders.SetMat4("model", model);
 	texturedShaders.SetMat4("view", view);
 	texturedShaders.SetMat4("projection", projection);
-	texturedShaders.SetVec4("lightColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	texturedShaders.SetVec3("lightPos", lightPos);
 	texturedShaders.SetVec3("viewPos", camera.position);
 	texturedShaders.SetInt("texture3", 2);
 
@@ -256,9 +254,13 @@ int main()
 	texturedShaders.SetInt("material.specular", 1);
 	texturedShaders.SetFloat("material.shininess", 32.0f);
 
+	texturedShaders.SetVec3("light.direction", -0.2f, -1.0f, -0.3f);
 	texturedShaders.SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
 	texturedShaders.SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
 	texturedShaders.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+	texturedShaders.SetFloat("light.constant", 1.0f);
+	texturedShaders.SetFloat("light.linear", 0.09f);
+	texturedShaders.SetFloat("light.quadratic", 0.032f);
 
 	lightShaders.Use();
 	lightShaders.SetMat4("model", model);
@@ -299,9 +301,11 @@ int main()
 		view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
 		texturedShaders.SetMat4("view", view);
 
-		lightPos.x = sin(glfwGetTime()) * radius;
-		lightPos.z = cos(glfwGetTime()) * radius;
-        lightPos.y = sin(glfwGetTime()) * radius;  
+		const float lightRad = 3.;
+
+		lightPos.x = sin(glfwGetTime()) * lightRad;
+		lightPos.z = cos(glfwGetTime()) * lightRad;
+        lightPos.y = sin(glfwGetTime()) * lightRad;
 
 		texturedShaders.Use();
 		texturedShaders.SetVec3("light.position", lightPos);
