@@ -156,6 +156,8 @@
   <ItemGroup>
     <Image Include="awesomeface.png" />
     <Image Include="container.jpg" />
+    <Image Include="container2.png" />
+    <Image Include="container2_specular.png" />
     <Image Include="crate.png" />
     <Image Include="Icon.png" />
   </ItemGroup>

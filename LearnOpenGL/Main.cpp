@@ -187,7 +187,7 @@ int main()
 	stbi_set_flip_vertically_on_load(true);
 
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("container2.png", &width, &height, &nrChannels, 0);
 
 	unsigned int texture1;
 	glGenTextures(1, &texture1);
@@ -198,13 +198,28 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 
 	unsigned int texture2;
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	data = stbi_load("container2_specular.png", &width, &height, &nrChannels, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(data);
+
+	unsigned int texture3;
+	glGenTextures(1, &texture3);
+	glBindTexture(GL_TEXTURE_2D, texture3);
 
 	data = stbi_load("Icon.png", &width, &height, &nrChannels, 0);
 
@@ -216,10 +231,6 @@ int main()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
-
-	texturedShaders.Use();
-	texturedShaders.SetInt("texture1", 0);
-	texturedShaders.SetInt("texture2", 1);
 
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -239,10 +250,10 @@ int main()
 	texturedShaders.SetVec4("lightColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	texturedShaders.SetVec3("lightPos", lightPos);
 	texturedShaders.SetVec3("viewPos", camera.position);
+	texturedShaders.SetInt("texture3", 2);
 
-	texturedShaders.SetVec3("material.ambient", 1.0f, 1.0f, 1.0f);
-	texturedShaders.SetVec3("material.diffuse", 1.0f, 1.0f, 1.0f);
-	texturedShaders.SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
+	texturedShaders.SetInt("material.diffuse", 0);
+	texturedShaders.SetInt("material.specular", 1);
 	texturedShaders.SetFloat("material.shininess", 32.0f);
 
 	texturedShaders.SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
@@ -309,6 +320,8 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, texture3);
 
 		glBindVertexArray(VAO);
 
