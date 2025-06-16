@@ -240,6 +240,15 @@ int main()
 	texturedShaders.SetVec3("lightPos", lightPos);
 	texturedShaders.SetVec3("viewPos", camera.position);
 
+	texturedShaders.SetVec3("material.ambient", 1.0f, 1.0f, 1.0f);
+	texturedShaders.SetVec3("material.diffuse", 1.0f, 1.0f, 1.0f);
+	texturedShaders.SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
+	texturedShaders.SetFloat("material.shininess", 32.0f);
+
+	texturedShaders.SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+	texturedShaders.SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+	texturedShaders.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
 	lightShaders.Use();
 	lightShaders.SetMat4("model", model);
 	lightShaders.SetMat4("view", view);
@@ -284,7 +293,7 @@ int main()
         lightPos.y = sin(glfwGetTime()) * radius;  
 
 		texturedShaders.Use();
-		texturedShaders.SetVec3("lightPos", lightPos);
+		texturedShaders.SetVec3("light.position", lightPos);
 		texturedShaders.SetVec3("viewPos", camera.position);
 
 		glBindVertexArray(lightVAO);
