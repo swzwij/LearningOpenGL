@@ -21,6 +21,8 @@ class OBJLoader
 public:
 	OBJLoader() { }
 
+	int VertexCount() const { return vertices.size(); }
+
 	bool Load(const std::string& path)
 	{
 		std::ifstream file(path);
@@ -73,16 +75,13 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-			sizeof(Vertex), (void*)offsetof(Vertex, position));
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 		glEnableVertexAttribArray(0);
 
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
-			sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 		glEnableVertexAttribArray(1);
 
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE,
-			sizeof(Vertex), (void*)offsetof(Vertex, normal));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 		glEnableVertexAttribArray(2);
 
 		glBindVertexArray(0);

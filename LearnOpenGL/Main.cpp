@@ -188,7 +188,8 @@ int main()
 	stbi_set_flip_vertically_on_load(true);
 
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load("container2.png", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("White.png", &width, &height, &nrChannels, 0);
+	//unsigned char* data = stbi_load("container2.png", &width, &height, &nrChannels, 0);
 
 	unsigned int texture1;
 	glGenTextures(1, &texture1);
@@ -207,7 +208,8 @@ int main()
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
-	data = stbi_load("container2_specular.png", &width, &height, &nrChannels, 0);
+	data = stbi_load("White.png", &width, &height, &nrChannels, 0);
+	//data = stbi_load("container2_specular.png", &width, &height, &nrChannels, 0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -222,7 +224,8 @@ int main()
 	glGenTextures(1, &texture3);
 	glBindTexture(GL_TEXTURE_2D, texture3);
 
-	data = stbi_load("Icon.png", &width, &height, &nrChannels, 0);
+	data = stbi_load("White.png", &width, &height, &nrChannels, 0);
+	//data = stbi_load("Icon.png", &width, &height, &nrChannels, 0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -294,8 +297,8 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		glClearColor(0.0f, 0.3f, 0.5f, 1.0f);
-		//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		//glClearColor(0.0f, 0.3f, 0.5f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		texturedShaders.Use();
@@ -348,7 +351,7 @@ int main()
 
 		model = glm::mat4(1.);
 		texturedShaders.SetMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, loader.VertexCount());
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
