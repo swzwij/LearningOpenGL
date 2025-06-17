@@ -9,6 +9,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "Camera.h"
+#include "OBJLoader.h"
 
 float deltaTime = 0.;
 float lastFrame = 0.;
@@ -281,6 +282,10 @@ int main()
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
+	OBJLoader loader;
+	loader.Load("models/Suzanne.obj");
+	int cubeVAO = loader.ToBuffer();
+
 	while (!glfwWindowShouldClose(window))
 	{
 		ProcessInput(window);
@@ -289,8 +294,8 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		//glClearColor(0.0f, 0.3f, 0.5f, 1.0f);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.0f, 0.3f, 0.5f, 1.0f);
+		//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		texturedShaders.Use();
@@ -327,19 +332,23 @@ int main()
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, texture3);
 
-		glBindVertexArray(VAO);
+		glBindVertexArray(cubeVAO);
 
 		texturedShaders.Use();
-		for (unsigned int i = 0; i < 10; i++)
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			texturedShaders.SetMat4("model", model);
+		//for (unsigned int i = 0; i < 10; i++)
+		//{
+		//	glm::mat4 model = glm::mat4(1.0f);
+		//	model = glm::translate(model, cubePositions[i]);
+		//	float angle = 20.0f * i;
+		//	model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+		//	texturedShaders.SetMat4("model", model);
 
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		//	glDrawArrays(GL_TRIANGLES, 0, 36);
+		//}
+
+		model = glm::mat4(1.);
+		texturedShaders.SetMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
