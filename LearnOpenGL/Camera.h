@@ -79,6 +79,8 @@ private:
 	{
 		float speed = SPEED * deltaTime;
 
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+			speed *= 10;
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			position += speed * front;
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
