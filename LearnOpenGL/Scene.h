@@ -2,17 +2,25 @@
 #define SCENE_H
 
 #include "Object.h"
+#include "lighting/Light.h"
 
 class Scene
 {
 private:
 	std::vector<Object*> objects;
+	std::vector<Light*> lights;
+
 public:
 	Scene() { };
 
 	void Add(Object* object)
 	{
 		objects.push_back(object);
+	}
+
+	void Add(Light* light)
+	{
+		lights.push_back(light);
 	}
 
 	void Update(float deltaTime)
@@ -32,6 +40,10 @@ public:
 		for (Object* object : objects)
 			delete object;
 		objects.clear();
+
+		for (Light* light : lights)
+			delete light;
+		lights.clear();
 	}
 };
 
