@@ -10,6 +10,9 @@
 #include "stb_image.h"
 #include "Camera.h"
 #include "OBJLoader.h"
+#include "Object.h"
+#include "ColoredObject.h"
+#include "Scene.h"
 
 float deltaTime = 0.;
 float lastFrame = 0.;
@@ -17,10 +20,10 @@ float lastFrame = 0.;
 Shader texturedShaders;
 Shader lightShaders;
 
-glm::vec3 cameraPosition(0., 0., 3.);
-glm::vec3 cameraTarget(0.);
+const int WIDTH = 1000;
+const int HEIGHT = 800;
 
-Camera camera(&cameraPosition, &cameraTarget);
+Camera camera = Camera(WIDTH, HEIGHT);
 
 void FramebufferSizeCallBack(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window);
@@ -32,9 +35,6 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	const int WIDTH = 1000;
-	const int HEIGHT = 800;
 
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Learning OpenGL", NULL, NULL);
 	if (!window)
@@ -55,57 +55,6 @@ int main()
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallBack);
 	glfwSetCursorPosCallback(window, MouseCallback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-	float vertices[] = 
-	{
-		// Back face
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-
-		// Front face
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-
-		// Left face
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-
-		// Right face
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-
-		 // Bottom face
-		 -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-		  0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-		  0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-		  0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-		 -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-		 -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-
-		 // Top face
-		 -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		  0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		  0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-		  0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-		 -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-		 -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f
-	};
 
 	float lightVertices[] =
 	{
@@ -163,38 +112,22 @@ int main()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
 
-	glEnable(GL_CULL_FACE);
+	/*glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
+	glFrontFace(GL_CCW);*/
 
 	stbi_set_flip_vertically_on_load(true);
 
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load("White.png", &width, &height, &nrChannels, 0);
-	//unsigned char* data = stbi_load("container2.png", &width, &height, &nrChannels, 0);
-
+	unsigned char* data = stbi_load("rancor_pit.png", &width, &height, &nrChannels, 0);
+	if (!data) 
+	{
+		std::cout << "Failed to load texture: " << stbi_failure_reason() << std::endl;
+		return -1;
+	}
 	unsigned int texture1;
 	glGenTextures(1, &texture1);
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -204,7 +137,10 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	/*GLenum internalFormat = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+	GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;*/
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 
@@ -212,31 +148,14 @@ int main()
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
-	data = stbi_load("White.png", &width, &height, &nrChannels, 0);
-	//data = stbi_load("container2_specular.png", &width, &height, &nrChannels, 0);
+	data = stbi_load("rancor_pit.png", &width, &height, &nrChannels, 0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(data);
-
-	unsigned int texture3;
-	glGenTextures(1, &texture3);
-	glBindTexture(GL_TEXTURE_2D, texture3);
-
-	data = stbi_load("White.png", &width, &height, &nrChannels, 0);
-	//data = stbi_load("Icon.png", &width, &height, &nrChannels, 0);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 
@@ -267,8 +186,8 @@ int main()
 	texturedShaders.SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
 	texturedShaders.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
 	texturedShaders.SetFloat("light.constant", 1.0f);
-	texturedShaders.SetFloat("light.linear", 0.09f);
-	texturedShaders.SetFloat("light.quadratic", 0.032f);
+	texturedShaders.SetFloat("light.linear", 0.0014f);
+	texturedShaders.SetFloat("light.quadratic", 0.0007f);
 
 	lightShaders.Use();
 	lightShaders.SetMat4("model", model);
@@ -290,8 +209,20 @@ int main()
 	};
 
 	OBJLoader loader;
-	loader.Load("models/Suzanne.obj");
+	loader.Load("models/rancor_pit.obj");
 	int cubeVAO = loader.ToBuffer();
+
+	float fpsTimer = 0.;
+	int fpsCount = 0;
+
+	Scene scene;
+
+	ColoredObject* coloredObject = new ColoredObject(glm::vec3(0.35, 0.1, 0.5));
+	ColoredObject* coloredObject2 = new ColoredObject(glm::vec3(0.75, 0.35, 0.2));
+	coloredObject2->Position(glm::vec3(5.0f, 0.0f, 0.0f));
+
+	scene.Add(coloredObject);
+	scene.Add(coloredObject2);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -301,9 +232,21 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		//glClearColor(0.0f, 0.3f, 0.5f, 1.0f);
+		fpsTimer += deltaTime;
+		fpsCount++;
+
+		if (fpsTimer >= 1.0f)
+		{
+			//std::cout << "FPS: " << fpsCount << std::endl;
+			fpsCount = 0;
+			fpsTimer = 0.0f;
+		}
+
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		scene.Update(deltaTime);
+		scene.Render(&camera);
 
 		texturedShaders.Use();
 
@@ -319,25 +262,25 @@ int main()
 		lightPos.z = cos(glfwGetTime()) * lightRad;
         lightPos.y = sin(glfwGetTime()) * lightRad;
 
+		lightPos = camera.position;
+
 		texturedShaders.Use();
 		texturedShaders.SetVec3("light.position", lightPos);
 		texturedShaders.SetVec3("viewPos", camera.position);
 
-		glBindVertexArray(lightVAO);
-		lightShaders.Use();
-		lightShaders.SetMat4("view", view);
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		lightShaders.SetMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(lightVAO);
+		//lightShaders.Use();
+		//lightShaders.SetMat4("view", view);
+		//glm::mat4 model = glm::mat4(1.0f);
+		//model = glm::translate(model, lightPos);
+		//model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		//lightShaders.SetMat4("model", model);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, texture3);
 
 		glBindVertexArray(cubeVAO);
 
@@ -355,7 +298,7 @@ int main()
 
 		model = glm::mat4(1.);
 		texturedShaders.SetMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, loader.VertexCount());
+		//glDrawArrays(GL_TRIANGLES, 0, loader.VertexCount());
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
@@ -386,5 +329,5 @@ void ProcessInput(GLFWwindow* window)
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	camera.Look(window, xpos, ypos);
+	camera.HandleMouse(window, xpos, ypos);
 }

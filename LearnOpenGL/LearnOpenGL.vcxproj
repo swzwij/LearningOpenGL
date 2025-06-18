@@ -139,12 +139,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ColoredObject.h" />
     <ClInclude Include="dependencies\include\glad\glad.h" />
     <ClInclude Include="dependencies\include\GLFW\glfw3.h" />
     <ClInclude Include="dependencies\include\GLFW\glfw3native.h" />
     <ClInclude Include="dependencies\include\KHR\khrplatform.h" />
     <ClInclude Include="Numerics.h" />
     <ClInclude Include="OBJLoader.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
@@ -162,6 +164,7 @@
     <Image Include="container2_specular.png" />
     <Image Include="crate.png" />
     <Image Include="Icon.png" />
+    <Image Include="rancor_pit.png" />
     <Image Include="White.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

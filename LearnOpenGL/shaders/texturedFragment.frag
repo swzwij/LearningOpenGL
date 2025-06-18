@@ -29,7 +29,6 @@ struct Light
 uniform vec3 viewPos;
 uniform Material material;
 uniform Light light;
-uniform sampler2D texture3;
 
 void main()
 {
@@ -53,6 +52,6 @@ void main()
     specular *= attenuation; 
         
     vec3 result = ambient + diffuse + specular;
-    vec4 mix = mix(vec4(result, 1.0), texture(texture3, TexCoord), 0.1);
+    vec4 mix = vec4(result, 1.0);
     FragColor = mix;
 }

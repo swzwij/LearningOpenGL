@@ -53,6 +53,12 @@
     <ClInclude Include="OBJLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ColoredObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="dependencies\lib\glfw3.lib" />
@@ -81,6 +87,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="White.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="rancor_pit.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
