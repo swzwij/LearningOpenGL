@@ -21,7 +21,7 @@ public:
 	void Add(Light* light)
 	{
 		lights.push_back(light);
-	}
+	}	
 
 	void Update(float deltaTime)
 	{
