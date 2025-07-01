@@ -15,9 +15,16 @@ uniform vec3 color;
 
 void main()
 {
-	gl_Position = projection * view * model * vec4(position, 1.0);
+	int scale = 2;
+	float roundedX = round((position.x * scale + 0.5) / scale);
+	float roundedY = round((position.y * scale + 0.5) / scale);
+	float roundedZ = round((position.z * scale + 0.5) / scale);
+
+	vec3 roundedPosition = vec3(roundedX, roundedY, roundedZ);
+
+	gl_Position = projection * view * model * vec4(roundedPosition, 1.0);
 	
-	fPosition = vec3(model * vec4(position, 1.0));
+	fPosition = vec3(model * vec4(roundedPosition, 1.0));
 	fNormal = mat3(transpose(inverse(model))) * normal;
 	fColor = color;
 }

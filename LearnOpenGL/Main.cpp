@@ -284,7 +284,7 @@ int main()
 
 		glBindVertexArray(cubeVAO);
 
-		texturedShaders.Use();
+		//texturedShaders.Use();
 		//for (unsigned int i = 0; i < 10; i++)
 		//{
 		//	glm::mat4 model = glm::mat4(1.0f);
@@ -296,8 +296,8 @@ int main()
 		//	glDrawArrays(GL_TRIANGLES, 0, 36);
 		//}
 
-		model = glm::mat4(1.);
-		texturedShaders.SetMat4("model", model);
+		//model = glm::mat4(1.);
+		//texturedShaders.SetMat4("model", model);
 		//glDrawArrays(GL_TRIANGLES, 0, loader.VertexCount());
 
 		glfwPollEvents();
